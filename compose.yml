@@ -1,0 +1,36 @@
+services:
+  steam:
+    build: .
+    # restart: unless-stopped
+    network_mode: host
+    privileged: true
+
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - RENDER_GID=989
+      - TZ=America/Denver
+      # Graphics Backend
+      - WLR_RENDERER=vulkan
+      - AMD_VULKAN_ICD=RADV
+      - WLR_DRM_NO_MODIFIERS=1
+
+    volumes:
+      - ./data:/home/retro
+
+      # 2. SHARED GAMES (Read/Write)
+      - ${HOME}/.local/share/Steam/steamapps:/mnt/local/SteamLibrary/steamapps
+      - /mnt/ntfs/SteamLibrary:/mnt/ntfs/SteamLibrary
+
+      # 3. SYSTEM
+      - /run/udev:/run/udev:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+    # tmpfs:
+    #   - /run/dbus:mode=0755
+
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/uinput:/dev/uinput
+
+    command: gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -gamepadui -noverifyfiles
