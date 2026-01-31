@@ -2,7 +2,7 @@ services:
   steam:
     build: .
     # restart: unless-stopped
-    network_mode: host
+    # network_mode: host  # Disabled to use port mappings for Sunshine
     privileged: true
 
     environment:
@@ -32,5 +32,14 @@ services:
     devices:
       - /dev/dri:/dev/dri
       - /dev/uinput:/dev/uinput
+      - /dev/input:/dev/input  # Added for Sunshine input handling
 
-    command: gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -gamepadui -noverifyfiles
+    ports:
+      # Sunshine game streaming ports
+      - "47984-47990:47984-47990/tcp"  # Web UI (47990) + control
+      - "48010:48010/tcp"              # Additional control
+      - "47998-48000:47998-48000/udp"  # Streaming traffic
+      # Note: Original VNC port (5900) commented out as VNC doesn't work with Gamescope headless
+      # - "5900:5900/tcp"
+
+    command: /home/retro/start.sh  # Use external startup script

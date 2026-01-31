@@ -74,10 +74,59 @@ su retro -c "
 # Give them a second to initialize
 sleep 2
 
-# --- 6. LAUNCH ---
-# FIX: Prevent container Steam from deferring to Host Steam
-export STEAM_MULTIPLE_INSTANCES=1
+# --- 6. SUNSHINE SETUP ---
+echo "[Entrypoint] Configuring Sunshine for game streaming..."
 
-echo "[Entrypoint] Dropping privileges and starting Application..."
-# Pass the XDG runtime explicitly to the final process
-exec su retro -c "export XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR; $*"
+# Create Sunshine config directory
+mkdir -p /home/retro/.config/sunshine
+chown "$USER_ID":"$GROUP_ID" /home/retro/.config/sunshine
+
+# Generate Sunshine configuration
+cat > /home/retro/.config/sunshine/sunshine.conf << 'EOF'
+# Sunshine Configuration for Gamescope Integration
+[general]
+global_prep_cmd =
+apps_cleanup = true
+
+[display]
+capture = kms
+resolution = 1280x800
+fps = 60
+
+[av1]
+enabled = false
+[h264]
+nvenc = true
+preset = quality
+[hevc]
+enabled = false
+[qp]
+quality = 20
+
+[Audio]
+sink = auto
+sources = auto
+virtual_sink = false
+
+[Input]
+mouse = absolute
+gamepad = auto
+keyrepeat = true
+
+[stream]
+lan_encryption_mode = 0
+pin =
+EOF
+
+# Set proper ownership for config files
+chown -R "$USER_ID":"$GROUP_ID" /home/retro/.config/sunshine
+
+# --- 7. LAUNCH ---
+# FIX: Prevent container Steam from deferring to Host Steam
+# export STEAM_MULTIPLE_INSTANCES=1
+
+export HOME="/home/retro"
+export USER="retro"
+
+# 3. Drop privileges
+exec runuser -u retro -- "$@"
