@@ -42,4 +42,4 @@ services:
       # Note: Original VNC port (5900) commented out as VNC doesn't work with Gamescope headless
       # - "5900:5900/tcp"
 
-    command: /home/retro/start.sh  # Use external startup script
+    command: /home/retro/start.sh xeyes
