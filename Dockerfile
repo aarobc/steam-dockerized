@@ -1,12 +1,18 @@
 FROM archlinux:latest
+# FROM lizardbyte/sunshine:v2025.1027.181930-archlinux
 
+
+USER root
 # 1. Enable Multilib
 RUN echo "[multilib]" >> /etc/pacman.conf && \
     echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
 
-RUN pacman -Syu --noconfirm
 
-RUN pacman -S --noconfirm \
+RUN pacman -Sy --noconfirm archlinux-keyring
+RUN pacman-key --init
+RUN pacman-key --populate archlinux
+
+RUN pacman -Sy --noconfirm \
     base-devel \
     steam \
     gamescope \
@@ -15,28 +21,11 @@ RUN pacman -S --noconfirm \
     pipewire pipewire-pulse wireplumber \
     ttf-liberation wqy-zenhei \
     nss lib32-nss \
-    sudo nano htop inetutils neovim
+    sudo inetutils neovim
 
-# Install dependencies for Sunshine
-RUN pacman -S --noconfirm \
-    libva-mesa-driver \
-    ffmpeg \
-    curl \
-    libcap \
-    libappindicator \
-    libayatana-appindicator \
-    libnotify \
-    miniupnpc
 
-RUN pacman -S --noconfirm xorg-xeyes
-
-# Install Sunshine from official AppImage (more self-contained)
-RUN curl -L -o /usr/local/bin/sunshine.AppImage "https://github.com/LizardByte/Sunshine/releases/download/v2025.924.154138/Sunshine-2025.924.154138-linux.AppImage" && \
-    chmod +x /usr/local/bin/sunshine.AppImage && \
-    ln -sf /usr/local/bin/sunshine.AppImage /usr/local/bin/sunshine
-
-# Set capabilities for AppImage wrapper
-RUN setcap cap_sys_admin+p /usr/local/bin/sunshine.AppImage
+RUN pacman -Sy --noconfirm xorg-xeyes mesa-demos wayvnc sway
+RUN pacman -Sy --noconfirm dmenu foot swaybg
 
 # 3. Fix Locales (CRITICAL for Steam UI)
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
@@ -51,5 +40,7 @@ RUN useradd -m -s /bin/bash retro && \
 COPY entry.sh /entry.sh
 RUN chmod +x /entry.sh
 WORKDIR /home/retro
+# USER lizard
 
+# entrypoint []
 ENTRYPOINT ["/entry.sh"]

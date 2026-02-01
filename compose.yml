@@ -1,8 +1,9 @@
 services:
   steam:
+    ipc: host
     build: .
     # restart: unless-stopped
-    # network_mode: host  # Disabled to use port mappings for Sunshine
+    network_mode: host  # Disabled to use port mappings for Sunshine
     privileged: true
 
     environment:
@@ -14,7 +15,12 @@ services:
       - WLR_RENDERER=vulkan
       - AMD_VULKAN_ICD=RADV
       - WLR_DRM_NO_MODIFIERS=1
+      - WLR_BACKENDS=headless
+      - WLR_LIBINPUT_NO_DEVICES=1
+      - WLR_RENDERER=pixman
+      - XDG_CURRENT_DESKTOP=sway
 
+    # entrypoint: []
     volumes:
       - ./data:/home/retro
 
@@ -35,11 +41,10 @@ services:
       - /dev/input:/dev/input  # Added for Sunshine input handling
 
     ports:
+      - "5900:5900"
       # Sunshine game streaming ports
-      - "47984-47990:47984-47990/tcp"  # Web UI (47990) + control
-      - "48010:48010/tcp"              # Additional control
-      - "47998-48000:47998-48000/udp"  # Streaming traffic
-      # Note: Original VNC port (5900) commented out as VNC doesn't work with Gamescope headless
-      # - "5900:5900/tcp"
+      # - "47984-47990:47984-47990/tcp"  # Web UI (47990) + control
+      # - "48010:48010/tcp"              # Additional control
+      # - "47998-48000:47998-48000/udp"  # Streaming traffic
 
     command: /home/retro/start.sh xeyes
