@@ -22,7 +22,7 @@ RUN pacman -Sy --noconfirm \
 
 RUN pacman -Sy --noconfirm xorg-xeyes mesa-demos wayvnc sway
 RUN pacman -Sy --noconfirm dmenu foot swaybg
-
+RUN pacman -Sy --noconfirm evtest
 # 3. Fix Locales (CRITICAL for Steam UI)
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen

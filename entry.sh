@@ -31,6 +31,9 @@ usermod -aG video retro
 groupadd -f audio
 usermod -aG audio retro
 
+# groupadd -g 993 host_input
+# usermod -aG host_input retro
+
 # --- 3. RUNTIME DIR FIXES ---
 mkdir -p /run/user/"$USER_ID"
 chown "$USER_ID":"$GROUP_ID" /run/user/"$USER_ID"

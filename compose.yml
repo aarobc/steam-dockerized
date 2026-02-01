@@ -3,22 +3,34 @@ services:
     ipc: host
     build: .
     restart: unless-stopped
-    network_mode: host  # Disabled to use port mappings for Sunshine
+    network_mode: host
     privileged: true
+    # cap_add:
+    #   - NET_ADMIN
+    #   - SYS_ADMIN
+    #   - SYS_NICE
+    #   - SYS_PTRACE
+    #   - NET_RAW
+    #   - MKNOD
+    #   - NET_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
 
     environment:
       - PUID=1000
       - PGID=1000
       - RENDER_GID=989
       - TZ=America/Denver
+      - INPUT_GID=993
 
       - WLR_RENDERER=vulkan
       - AMD_VULKAN_ICD=RADV
       - WLR_DRM_NO_MODIFIERS=1
       - WLR_BACKENDS=headless
-      - WLR_LIBINPUT_NO_DEVICES=1
+      # - WLR_LIBINPUT_NO_DEVICES=1
       - WLR_RENDERER=pixman
-      - XDG_CURRENT_DESKTOP=sway
+      # - XDG_CURRENT_DESKTOP=sway
 
     # entrypoint: []
     volumes:
@@ -31,13 +43,20 @@ services:
       # 3. SYSTEM
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-
-    devices:
-      - /dev/dri:/dev/dri
-      - /dev/uinput:/dev/uinput
       - /dev/input:/dev/input  # Added for Sunshine input handling
 
-    ports:
-      - "5900:5900"
+    devices:
+      - /dev/fuse
+      - /dev/dri:/dev/dri
+      - /dev/uinput:/dev/uinput
+      # - /dev/input:/dev/input  # Added for Sunshine input handling
+    # Ensure container access to devices 13:*
+    device_cgroup_rules:
+      - 'c 13:* rmw'
+      # - "c 244:* rmw" # uinput
 
-    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -gamepadui
+    # ports:
+    #   - "5900:5900"
+
+    # command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -gamepadui
+    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
