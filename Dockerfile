@@ -1,9 +1,5 @@
 FROM archlinux:latest
-# FROM lizardbyte/sunshine:v2025.1027.181930-archlinux
 
-
-USER root
-# 1. Enable Multilib
 RUN echo "[multilib]" >> /etc/pacman.conf && \
     echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
 
@@ -40,7 +36,5 @@ RUN useradd -m -s /bin/bash retro && \
 COPY entry.sh /entry.sh
 RUN chmod +x /entry.sh
 WORKDIR /home/retro
-# USER lizard
 
-# entrypoint []
 ENTRYPOINT ["/entry.sh"]

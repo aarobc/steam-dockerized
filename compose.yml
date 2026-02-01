@@ -2,7 +2,7 @@ services:
   steam:
     ipc: host
     build: .
-    # restart: unless-stopped
+    restart: unless-stopped
     network_mode: host  # Disabled to use port mappings for Sunshine
     privileged: true
 
@@ -11,7 +11,7 @@ services:
       - PGID=1000
       - RENDER_GID=989
       - TZ=America/Denver
-      # Graphics Backend
+
       - WLR_RENDERER=vulkan
       - AMD_VULKAN_ICD=RADV
       - WLR_DRM_NO_MODIFIERS=1
@@ -22,18 +22,15 @@ services:
 
     # entrypoint: []
     volumes:
-      - ./data:/home/retro
+      - ./data/.config:/home/retro/.config
 
-      # 2. SHARED GAMES (Read/Write)
-      - ${HOME}/.local/share/Steam/steamapps:/mnt/local/SteamLibrary/steamapps
+      # - ${HOME}/.local/share/Steam/steamapps:/mnt/local/SteamLibrary/steamapps
+      - ${HOME}/.local/share/Steam:/home/retro/.local/share/Steam
       - /mnt/ntfs/SteamLibrary:/mnt/ntfs/SteamLibrary
 
       # 3. SYSTEM
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-
-    # tmpfs:
-    #   - /run/dbus:mode=0755
 
     devices:
       - /dev/dri:/dev/dri
@@ -42,9 +39,5 @@ services:
 
     ports:
       - "5900:5900"
-      # Sunshine game streaming ports
-      # - "47984-47990:47984-47990/tcp"  # Web UI (47990) + control
-      # - "48010:48010/tcp"              # Additional control
-      # - "47998-48000:47998-48000/udp"  # Streaming traffic
 
-    command: /home/retro/start.sh xeyes
+    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam --gamepadui
