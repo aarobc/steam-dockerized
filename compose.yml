@@ -40,4 +40,4 @@ services:
     ports:
       - "5900:5900"
 
-    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam --gamepadui
+    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -gamepadui
