@@ -4,10 +4,15 @@ services:
     build: .
     restart: unless-stopped
     network_mode: host
-    privileged: true
+    # privileged: true
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
+
+    cap_add:
+      - SYS_NICE      # Required for Gamescope priority/performance
+      - SYS_PTRACE    # Required for Proton/Wine anti-cheat and process handling
+      # - SYS_ADMIN   # Try without this first. If Gamescope fails to start, add it back.
 
     environment:
       - PUID=1000
@@ -41,5 +46,7 @@ services:
       - /dev/uinput:/dev/uinput
     device_cgroup_rules:
       - 'c 13:* rmw'
+      - 'c 226:* rmw'   # DRI/GPU devices (video cards)
+      - 'c 10:223 rmw'  # uinput (Virtual controller creation)
 
     command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
