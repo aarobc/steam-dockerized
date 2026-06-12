@@ -1,7 +1,9 @@
 services:
   steam:
     ipc: host
-    build: .
+    build:
+      context: .
+      target: base
     restart: unless-stopped
     network_mode: host
     security_opt:
@@ -11,39 +13,28 @@ services:
     cap_add:
       - SYS_NICE      # Required for Gamescope priority/performance
       - SYS_PTRACE    # Required for Proton/Wine anti-cheat and process handling
-      # - SYS_ADMIN   # Only if Gamescope headless fails without it
 
     environment:
-      - PUID=1000
-      - PGID=1000
-      - RENDER_GID=989
-      - TZ=America/Denver
-
       - AMD_VULKAN_ICD=RADV
       - WLR_DRM_NO_MODIFIERS=1
       - WLR_BACKENDS=headless
       - WLR_RENDERER=pixman
 
-    # entrypoint: []
     volumes:
       - ./entry.sh:/entry.sh
       - ./data/.config:/home/retro/.config
-
-      # - ${HOME}/.local/share/Steam/steamapps:/mnt/local/SteamLibrary/steamapps
-      - ${HOME}/.local/share/Steam:/home/retro/.local/share/Steam
-      - /mnt/ntfs/SteamLibrary:/mnt/ntfs/SteamLibrary
-
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - /dev/input:/dev/input  # Added for Sunshine input handling
+      - /dev/input:/dev/input
 
     devices:
       - /dev/fuse
       - /dev/dri:/dev/dri
       - /dev/uinput:/dev/uinput
     device_cgroup_rules:
-      - 'c 13:* rmw'
-      - 'c 226:* rmw'   # DRI/GPU devices (video cards)
-      - 'c 10:223 rmw'  # uinput (Virtual controller creation)
+      - 'c 13:* rmw'       # Input devices (joysticks, gamepads)
+      - 'c 226:* rmw'      # DRI/GPU devices
+      - 'c 10:223 rmw'     # uinput (virtual controller creation)
 
-    command:  gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
+    command: gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
+
