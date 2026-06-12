@@ -27,19 +27,8 @@ chmod 700 "$XDG_RUNTIME_DIR"
 chown -R "$USER_ID":"$GROUP_ID" "$HOME/.local/state"
 chown "$USER_ID":"$GROUP_ID" "$HOME"
 
-# --- Check for running Steam instance ---
-STEAM_DIR="$HOME/.local/share/Steam"
-if [ -f "$STEAM_DIR/steam.pid" ]; then
-    if [ "${FORCE_START:-0}" = "1" ]; then
-        echo "[entry] WARNING: steam.pid found but FORCE_START=1, removing stale locks..."
-        rm -f "$STEAM_DIR"/{steam.pid,steam.pipe,.registry.vdf.lock} 2>/dev/null || true
-    else
-        echo "[entry] ERROR: Steam appears to be already running (steam.pid exists)."
-        echo "[entry] If Steam is running on the host, stop it first to avoid data corruption."
-        echo "[entry] If this is a stale lock from a crash, set FORCE_START=1 to override."
-        exit 1
-    fi
-fi
+# --- Clean stale locks ---
+rm -f "$HOME/.local/share/Steam"/{steam.pid,steam.pipe,.registry.vdf.lock} 2>/dev/null || true
 
 # --- Start services ---
 dbus-daemon --system --fork
