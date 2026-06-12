@@ -21,7 +21,7 @@ The container runs Steam in SteamOS/Game Mode (`-steamos3 -gamepadui`) inside a 
 ### 1. Clone and configure
 
 ```bash
-git clone <repo-url> steam-dockerized
+git clone https://github.com/aarobc/steam-dockerized
 cd steam-dockerized
 cp compose.override.yml.example compose.override.yml
 ```
