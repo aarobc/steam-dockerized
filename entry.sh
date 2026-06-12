@@ -79,7 +79,6 @@ sleep 2
 
 export HOME="/home/retro"
 export USER="retro"
-# export WAYLAND_DISPLAY=gamescope-0
 
 # 3. Drop privileges
 exec runuser -u retro -- "$@"

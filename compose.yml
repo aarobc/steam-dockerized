@@ -4,7 +4,7 @@ services:
     build: .
     restart: unless-stopped
     network_mode: host
-    # privileged: true
+    privileged: true
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -12,7 +12,7 @@ services:
     cap_add:
       - SYS_NICE      # Required for Gamescope priority/performance
       - SYS_PTRACE    # Required for Proton/Wine anti-cheat and process handling
-      # - SYS_ADMIN   # Try without this first. If Gamescope fails to start, add it back.
+      - SYS_ADMIN   # Try without this first. If Gamescope fails to start, add it back.
 
     environment:
       - PUID=1000
@@ -30,6 +30,7 @@ services:
 
     # entrypoint: []
     volumes:
+      - ./entry.sh:/entry.sh
       - ./data/.config:/home/retro/.config
 
       # - ${HOME}/.local/share/Steam/steamapps:/mnt/local/SteamLibrary/steamapps
