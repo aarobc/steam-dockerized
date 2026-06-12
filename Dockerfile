@@ -1,12 +1,11 @@
-FROM archlinux:latest AS base
+FROM archlinux:base-20260510.0.525573 AS base
 
 RUN echo "[multilib]" >> /etc/pacman.conf && \
-    echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
-
-RUN pacman-key --init && pacman-key --populate archlinux
+    echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf && \
+    echo 'Server=https://archive.archlinux.org/repos/2026/05/10/$repo/os/$arch' > /etc/pacman.d/mirrorlist && \
+    sed -i 's/^SigLevel.*/SigLevel = Never/' /etc/pacman.conf
 
 RUN pacman -Syu --noconfirm \
-    archlinux-keyring \
     steam \
     gamescope \
     vulkan-icd-loader lib32-vulkan-icd-loader \
