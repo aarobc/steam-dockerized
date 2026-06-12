@@ -4,7 +4,6 @@ services:
     build: .
     restart: unless-stopped
     network_mode: host
-    privileged: true
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -12,21 +11,18 @@ services:
     cap_add:
       - SYS_NICE      # Required for Gamescope priority/performance
       - SYS_PTRACE    # Required for Proton/Wine anti-cheat and process handling
-      - SYS_ADMIN   # Try without this first. If Gamescope fails to start, add it back.
+      # - SYS_ADMIN   # Only if Gamescope headless fails without it
 
     environment:
       - PUID=1000
       - PGID=1000
       - RENDER_GID=989
       - TZ=America/Denver
-      - INPUT_GID=993
 
-      - WLR_RENDERER=vulkan
       - AMD_VULKAN_ICD=RADV
       - WLR_DRM_NO_MODIFIERS=1
       - WLR_BACKENDS=headless
       - WLR_RENDERER=pixman
-      # - XDG_CURRENT_DESKTOP=sway
 
     # entrypoint: []
     volumes:
