@@ -19,7 +19,6 @@ services:
       - WLR_RENDERER=pixman
 
     volumes:
-      - ./entry.sh:/entry.sh
       - ./data/.config:/home/retro/.config
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw

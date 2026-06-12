@@ -12,6 +12,12 @@ The container runs Steam in SteamOS/Game Mode (`-steamos3 -gamepadui`) inside a 
 
 ## Quick Start
 
+> [!IMPORTANT]
+> You must have previously authorized your remote device for Remote Play through your **native Steam installation** before using this container. The container shares your Steam data directory — it cannot complete the initial pairing on its own.
+
+> [!CAUTION]
+> **Never run the container and your host Steam instance at the same time.** They share the same data directory, and concurrent access will corrupt your Steam configuration, saves, or library metadata.
+
 ### 1. Clone and configure
 
 ```bash
@@ -55,23 +61,11 @@ sudo udevadm trigger
 
 ```bash
 docker compose build
-docker compose up
+docker compose up -d
 ```
 
 Steam will launch in headless Game Mode. Open Steam on another device on the same network, and your dockerized instance will appear as a streamable machine under Remote Play.
 
-## Project Structure
-
-```
-├── Dockerfile                       # Multi-stage build (base → amd/nvidia/debug)
-├── compose.yml                      # Generic container config
-├── compose.override.yml.example     # Template for host-specific settings
-├── compose.override.yml             # Your local overrides (gitignored)
-├── entry.sh                         # Container entrypoint
-├── data/                            # Persistent config (gitignored)
-│   └── .config/                     # Steam/app configuration
-└── Makefile                         # Convenience targets
-```
 
 ## Configuration
 
@@ -85,6 +79,7 @@ Set these in your `compose.override.yml`:
 | `PGID` | `1000` | GID of the container user (match your host group) |
 | `RENDER_GID` | `989` | GID of the host `render` group (for GPU access) |
 | `TZ` | — | Timezone (e.g. `America/Denver`) |
+| `FORCE_START` | `0` | Set to `1` to clear stale Steam lock files after a crash |
 
 ### Volume Mounts
 
@@ -110,6 +105,8 @@ environment:
 ```
 
 **NVIDIA** — add the following to your `compose.override.yml`:
+
+(currently untested)
 
 ```yaml
 services:
@@ -175,6 +172,18 @@ The container runs **without** `privileged` mode. It uses the minimum capabiliti
 
 The entrypoint runs as root only to set up UID/GID mapping and start system services, then drops to an unprivileged user (`retro`) via `exec runuser` for the actual Steam process.
 
+## Troubleshooting
+
+### Controller input not working via Remote Play
+
+If your controller is not being picked up by games when streaming:
+
+1. On the **remote device** (the one you're streaming to), open Steam and navigate to **Settings → Remote Play**.
+2. Connect directly to the host listed there — this opens the remote Steam session.
+3. In the remote session, go to **Settings → Controller** and verify that **Steam Deck Controller** is listed as the **first device**.
+
+If it's not first, reorder it so it takes priority. Games rely on the first listed controller for input mapping.
+
 ## License
 
-MIT
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)

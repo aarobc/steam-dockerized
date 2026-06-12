@@ -25,11 +25,11 @@ ENV LANG=en_US.UTF-8
 RUN useradd -m -s /bin/bash retro && \
     echo "retro ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-COPY entry.sh /entry.sh
-RUN chmod +x /entry.sh
+COPY entry.sh /home/retro/entry.sh
+RUN chmod +x /home/retro/entry.sh
 WORKDIR /home/retro
 
-ENTRYPOINT ["/entry.sh"]
+ENTRYPOINT ["/home/retro/entry.sh"]
 
 # --- AMD GPU ---
 FROM base AS amd
