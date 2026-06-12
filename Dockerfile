@@ -9,7 +9,7 @@ RUN pacman -Syu --noconfirm \
     archlinux-keyring \
     steam \
     gamescope \
-    vulkan-radeon lib32-vulkan-radeon \
+    vulkan-icd-loader lib32-vulkan-icd-loader \
     lib32-libglvnd lib32-gcc-libs \
     pipewire pipewire-pulse wireplumber \
     ttf-liberation wqy-zenhei \
@@ -31,10 +31,23 @@ WORKDIR /home/retro
 
 ENTRYPOINT ["/entry.sh"]
 
-# --- Debug stage: adds sway + wayvnc for visual debugging ---
+# --- AMD GPU ---
+FROM base AS amd
+
+RUN pacman -Syu --noconfirm \
+    vulkan-radeon lib32-vulkan-radeon \
+ && pacman -Scc --noconfirm
+
+# --- NVIDIA GPU ---
+FROM base AS nvidia
+
+RUN pacman -Syu --noconfirm \
+    nvidia-utils lib32-nvidia-utils \
+ && pacman -Scc --noconfirm
+
+# --- Debug: adds sway + wayvnc for visual debugging ---
 FROM base AS debug
 
 RUN pacman -Syu --noconfirm \
     sway wayvnc \
  && pacman -Scc --noconfirm
-

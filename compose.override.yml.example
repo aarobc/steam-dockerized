@@ -1,0 +1,41 @@
+# Host-specific overrides for steam-dockerized.
+# Copy this file to compose.override.yml and adjust to match your system.
+#
+# Docker Compose automatically merges compose.override.yml with compose.yml.
+# List values (volumes, environment, devices) are ADDITIVE — they extend
+# the base, they don't replace it.
+
+services:
+  steam:
+    restart: unless-stopped
+
+    # --- GPU SELECTION ---
+    # The default compose.yml targets the 'amd' stage.
+    # For NVIDIA, uncomment the build block and nvidia runtime below:
+    #
+    # build:
+    #   context: .
+    #   target: nvidia
+    # runtime: nvidia
+
+    environment:
+      # Match these to your host user. Run `id` to find your values.
+      - PUID=1000
+      - PGID=1000
+      # Run `getent group render | cut -d: -f3` to find your render GID.
+      - RENDER_GID=989
+      - TZ=America/Denver
+
+      # --- AMD (default) ---
+      - AMD_VULKAN_ICD=RADV
+
+      # --- NVIDIA (uncomment if using NVIDIA, remove the AMD line above) ---
+      # - NVIDIA_VISIBLE_DEVICES=all
+      # - NVIDIA_DRIVER_CAPABILITIES=all
+
+    volumes:
+      # Mount your Steam installation into the container.
+      - ${HOME}/.local/share/Steam:/home/retro/.local/share/Steam
+
+      # Add any additional game library paths below:
+      # - /mnt/games/SteamLibrary:/mnt/games/SteamLibrary
