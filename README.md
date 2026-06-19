@@ -48,6 +48,11 @@ docker compose up -d
 
 Steam will launch in headless Game Mode. Open Steam on another device on the same network, and your dockerized instance will appear as a streamable machine under Remote Play.
 
+### 3. Change Resolution on the Fly (Web UI)
+
+The stack includes a convenient web service (the `res` container) to dynamically change your headless Steam resolution without modifying configuration files.
+
+Navigate to `http://<your-host-ip>:8080` in any web browser to access the Display Settings dashboard. From there, you can easily switch between common resolutions (e.g., Steam Deck 16:10, 1080p, 1440p, or 4K). Selecting a new resolution will instantly apply it by safely restarting the Steam container in the background with the new dimensions.
 
 ## Configuration
 
