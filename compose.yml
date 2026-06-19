@@ -33,5 +33,13 @@ services:
       - 'c 226:* rmw'      # DRI/GPU devices
       - 'c 10:223 rmw'     # uinput (virtual controller creation)
 
-    command: gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
+    command: gamescope --backend headless -e -W ${GAMESCOPE_W:-1280} -H ${GAMESCOPE_H:-800} -w ${GAMESCOPE_W:-1280} -h ${GAMESCOPE_H:-800} -r ${GAMESCOPE_R:-60} -- steam -steamos3 -gamepadui
 
+  res:
+    build: ./res
+    container_name: res
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/project
+      - /var/run/docker.sock:/var/run/docker.sock

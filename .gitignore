@@ -1,3 +1,4 @@
 data/
 compose.override.yml
 opencode.json
+.env
