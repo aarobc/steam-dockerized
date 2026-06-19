@@ -24,6 +24,8 @@ services:
       - PGID=1000
       # Run `getent group render | cut -d: -f3` to find your render GID.
       - RENDER_GID=989
+      # Run `getent group input | cut -d: -f3` to find your input GID.
+      - INPUT_GID=993
       - TZ=America/Denver
 
       # --- AMD (default) ---

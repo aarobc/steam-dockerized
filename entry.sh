@@ -4,8 +4,9 @@ set -e
 USER_ID=${PUID:-1000}
 GROUP_ID=${PGID:-1000}
 RENDER_GID=${RENDER_GID:-989}
+INPUT_GID=${INPUT_GID:-993}
 
-echo "[entry] UID=$USER_ID GID=$GROUP_ID RENDER_GID=$RENDER_GID"
+echo "[entry] UID=$USER_ID GID=$GROUP_ID RENDER_GID=$RENDER_GID INPUT_GID=$INPUT_GID"
 
 # --- Fix UID/GID to match host ---
 groupmod -o -g "$GROUP_ID" retro
@@ -13,7 +14,13 @@ usermod -o -u "$USER_ID" -g "$GROUP_ID" retro 2>/dev/null || true
 
 # --- Hardware groups ---
 groupmod -o -g "$RENDER_GID" render 2>/dev/null || groupadd -o -g "$RENDER_GID" render
-usermod -aG render,video,audio retro
+groupmod -o -g "$INPUT_GID" input 2>/dev/null || groupadd -o -g "$INPUT_GID" input
+usermod -aG render,video,audio,input retro
+
+if [ -e /dev/uinput ]; then
+    chgrp "$INPUT_GID" /dev/uinput 2>/dev/null || true
+    chmod 0660 /dev/uinput 2>/dev/null || true
+fi
 
 # --- Runtime directories ---
 export XDG_RUNTIME_DIR="/run/user/$USER_ID"
