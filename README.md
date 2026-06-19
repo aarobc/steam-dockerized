@@ -23,22 +23,14 @@ The container runs Steam in SteamOS/Game Mode (`-steamos3 -gamepadui`) inside a 
 ```bash
 git clone https://github.com/aarobc/steam-dockerized
 cd steam-dockerized
-cp compose.override.yml.example compose.override.yml
+make setup
 ```
 
-Edit `compose.override.yml` to match your system:
+The `setup` command automatically copies the example configuration and injects your host's specific user and group IDs (`PUID`, `PGID`, `RENDER_GID`, `INPUT_GID`) so the container has the correct hardware permissions.
+
+You can then edit `compose.override.yml` to adjust any volume mounts, such as adding additional game library paths:
 
 ```yaml
-services:
-  steam:
-    restart: unless-stopped
-
-    environment:
-      - PUID=1000        # Your user ID  (run `id -u`)
-      - PGID=1000        # Your group ID (run `id -g`)
-      - RENDER_GID=989   # run `getent group render | cut -d: -f3`
-      - TZ=America/Denver
-
     volumes:
       # Your Steam installation — games, saves, and config persist here
       - ${HOME}/.local/share/Steam:/home/retro/.local/share/Steam
@@ -47,17 +39,7 @@ services:
       # - /mnt/games/SteamLibrary:/mnt/games/SteamLibrary
 ```
 
-### 2. Set up input device permissions
-
-Steam Remote Play needs access to create virtual input devices. Run once:
-
-```bash
-make rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
-```
-
-### 3. Build and start
+### 2. Build and start
 
 ```bash
 docker compose build
@@ -78,6 +60,7 @@ Set these in your `compose.override.yml`:
 | `PUID` | `1000` | UID of the container user (match your host user) |
 | `PGID` | `1000` | GID of the container user (match your host group) |
 | `RENDER_GID` | `989` | GID of the host `render` group (for GPU access) |
+| `INPUT_GID` | `993` | GID of the host `input` group (for controller access) |
 | `TZ` | — | Timezone (e.g. `America/Denver`) |
 | `FORCE_START` | `0` | Set to `1` to clear stale Steam lock files after a crash |
 
