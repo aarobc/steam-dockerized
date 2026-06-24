@@ -1,15 +1,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"strings"
 )
 
 func main() {
+	// Create an HTTP client that communicates over the local Docker Unix socket
+	unixClient := http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				return net.Dial("unix", "/var/run/docker.sock")
+			},
+		},
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
@@ -38,26 +48,39 @@ func main() {
 
 		width, height := parts[0], parts[1]
 
-		// Execute docker compose up -d steam
-		cmd := exec.Command("docker", "compose", "up", "-d", "steam")
-		cmd.Dir = "/project"
-		
-		// Pass inline environment variables for dynamic compose interpolation
-		cmd.Env = append(os.Environ(), 
-			fmt.Sprintf("GAMESCOPE_W=%s", width),
-			fmt.Sprintf("GAMESCOPE_H=%s", height),
-			"GAMESCOPE_R=60",
-		)
+		// Write res.txt
+		cfgPath := "/config/res.txt"
+		resLine := fmt.Sprintf("%sx%s\n", width, height)
+		if err := os.WriteFile(cfgPath, []byte(resLine), 0644); err != nil {
+			log.Printf("Failed to write res.txt: %v", err)
+			http.Error(w, "Failed to write res.txt", http.StatusInternalServerError)
+			return
+		}
 
-		output, err := cmd.CombinedOutput()
+		// Execute docker restart steam via HTTP POST to the Docker socket
+		req, err := http.NewRequest("POST", "http://localhost/containers/steam/restart", nil)
 		if err != nil {
-			log.Printf("Failed to restart container: %v\nOutput: %s", err, output)
+			log.Printf("Failed to create request: %v", err)
+			http.Error(w, "Internal error", http.StatusInternalServerError)
+			return
+		}
+
+		resp, err := unixClient.Do(req)
+		if err != nil {
+			log.Printf("Failed to restart steam container via socket: %v", err)
 			http.Error(w, fmt.Sprintf("Failed to restart steam container: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			log.Printf("Docker API returned status: %v", resp.StatusCode)
+			http.Error(w, fmt.Sprintf("Docker API returned status: %v", resp.StatusCode), http.StatusInternalServerError)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Container restarted successfully!"))
+		w.Write([]byte("Resolution updated and container restarted!"))
 	})
 
 	log.Println("Listening on :8080")
