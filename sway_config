@@ -1,0 +1,18 @@
+# Explicitly define the virtual headless display
+output HEADLESS-1 resolution 1920x1080 position 0,0
+
+# Set a basic terminal shortcut
+set $term foot
+bindsym Mod4+Return exec $term
+
+# Auto-start a terminal so you aren't staring at a black screen on connect
+exec foot
+
+# Auto-start the VNC server
+exec wayvnc -k us-dvorak 0.0.0.0
+
+# Use Dvorak keyboard layout for all inputs
+input * {
+    xkb_layout us
+    xkb_variant dvorak
+}

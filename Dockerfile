@@ -24,11 +24,14 @@ ENV LANG=en_US.UTF-8
 RUN useradd -m -s /bin/bash retro && \
     echo "retro ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-COPY entry.sh /home/retro/entry.sh
-RUN chmod +x /home/retro/entry.sh
+COPY entry.sh /app/entry.sh
+COPY launch.sh /app/launch.sh
+RUN chmod +x /app/entry.sh /app/launch.sh
 WORKDIR /home/retro
+RUN mkdir -p /home/retro/.config
+RUN mkdir -p /home/retro/.local
 
-ENTRYPOINT ["/home/retro/entry.sh"]
+ENTRYPOINT ["/app/entry.sh"]
 
 # --- AMD GPU ---
 FROM base AS amd
@@ -48,5 +51,5 @@ RUN pacman -Syu --noconfirm \
 FROM base AS debug
 
 RUN pacman -Syu --noconfirm \
-    sway wayvnc \
+    foot sway swaybg wayvnc \
  && pacman -Scc --noconfirm

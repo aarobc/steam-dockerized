@@ -20,7 +20,7 @@ services:
       - WLR_RENDERER=pixman
 
     volumes:
-      - ./config:/home/retro/.config
+      - steam_home:/home/retro
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev/input:/dev/input
@@ -34,9 +34,11 @@ services:
       - 'c 226:* rmw'      # DRI/GPU devices
       - 'c 10:223 rmw'     # uinput (virtual controller creation)
 
-    command: steam -steamos3 -gamepadui
+    # command: steam -steamos3 -gamepadui
+    command: /app/launch.sh steam -steamos3 -gamepadui
 
   res:
+    restart: unless-stopped
     build: ./res
     container_name: res
     ports:
@@ -44,3 +46,18 @@ services:
     volumes:
       - ./config:/config
       - /var/run/docker.sock:/var/run/docker.sock
+
+  debug:
+    extends: steam
+    container_name: debug
+    profiles:
+      - debug
+    build:
+      context: .
+      target: debug
+    volumes:
+      - ./sway_config:/home/retro/.config/sway/config:ro
+    command: sway
+
+volumes:
+  steam_home:

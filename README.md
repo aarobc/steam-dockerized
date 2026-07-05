@@ -50,9 +50,11 @@ Steam will launch in headless Game Mode. Open Steam on another device on the sam
 
 ### 3. Change Resolution on the Fly (Web UI)
 
-The stack includes a convenient web service (the `res` container) to dynamically change your headless Steam resolution without modifying configuration files.
+The stack includes a convenient, ultra-lightweight Go web service (the `res` container) to dynamically change your headless Steam resolution.
 
-Navigate to `http://<your-host-ip>:8080` in any web browser to access the Display Settings dashboard. From there, you can easily switch between common resolutions (e.g., Steam Deck 16:10, 1080p, 1440p, or 4K). Selecting a new resolution will instantly apply it by safely restarting the Steam container in the background with the new dimensions.
+Navigate to `http://<your-host-ip>:8080` in any web browser to access the Display Settings dashboard. From there, you can easily switch between common resolutions (e.g., Steam Deck 16:10, 1080p, 1440p, or 4K). 
+
+When you select a new resolution, the web app writes it directly to the shared `./config/res.txt` file, and uses the native Docker Socket REST API to cleanly reboot the Steam container — requiring zero bloated Docker CLI dependencies inside the image.
 
 ## Configuration
 
@@ -113,13 +115,15 @@ services:
 
 ### Gamescope Options
 
-The default command launches at 1280×800 @ 60fps:
+The `steam` container utilizes an automated entrypoint script (`entry.sh`) that dynamically wraps your command in a headless Gamescope session. 
+
+The default command in `compose.yml` is simple:
 
 ```yaml
-command: gamescope --backend headless -e -W 1280 -H 800 -r 60 -- steam -steamos3 -gamepadui
+command: steam -steamos3 -gamepadui
 ```
 
-Override `command` in your `compose.override.yml` to change resolution or framerate. Unlike list values, `command` is a scalar and **replaces** the base value.
+The entrypoint determines the resolution by reading `./config/res.txt` (falling back to 1280x800 @ 60fps if the file is missing). This allows the resolution to be changed dynamically via the web UI without having to modify the Docker Compose definition or deal with volume re-mounting issues!
 
 ## Debug Image
 
