@@ -22,8 +22,8 @@ services:
     volumes:
       - steam_home:/home/retro
       - /run/udev:/run/udev:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev/input:/dev/input
+      - ./config:/app/config
 
     devices:
       - /dev/fuse

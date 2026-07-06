@@ -2,7 +2,7 @@
 set -e
 
 # --- Read resolution from config ---
-RES_FILE="$HOME/.config/res.txt"
+RES_FILE="/app/config/res.txt"
 if [ -f "$RES_FILE" ]; then
     RES=$(cat "$RES_FILE")
 else

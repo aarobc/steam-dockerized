@@ -34,6 +34,8 @@ chmod 700 "$XDG_RUNTIME_DIR"
 chown -R "$USER_ID":"$GROUP_ID" "$HOME/.local/state"
 chown "$USER_ID":"$GROUP_ID" "$HOME"
 
+chown -R "$USER_ID":"$GROUP_ID" "/app"
+
 # --- Clean stale locks ---
 rm -f "$HOME/.local/share/Steam"/{steam.pid,steam.pipe,.registry.vdf.lock} 2>/dev/null || true
 
